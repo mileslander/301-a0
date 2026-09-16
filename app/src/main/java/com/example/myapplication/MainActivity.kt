@@ -2,6 +2,8 @@ package com.example.myapplication
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
@@ -24,6 +26,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,13 +40,13 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     DecisionMakingScreen(
                         probabilityRepository.probabilities,
+                        probabilityRepository::runProbability,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
         }
     }
-
 
     @Composable
     fun DecisionMakingTheme(content: @Composable () -> Unit) {
@@ -52,16 +56,53 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DecisionMakingScreen(
         probabilities: List<Double>,
+        runProbabilities: (Double) -> Boolean,
         modifier: Modifier = Modifier
     ) {
         var clickCount by remember { mutableIntStateOf(0) }
 
         var clickMessage by remember { mutableStateOf("Click Count: $clickCount") }
 
-        Column(modifier = modifier.fillMaxWidth().padding(all = 16.dp)) {
-            Row(modifier = modifier.fillMaxWidth().padding(all = 16.dp)){
+        var displayMessage by remember { mutableStateOf("Should we go?") }
+
+        Row(modifier = modifier.fillMaxWidth()){
+            Box{
+                Text("CCID: mlander")
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Box{
+                Text("Student ID: xxxxxxxx")
+            }
+        }
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(
+                modifier = modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Box {
+                    Text(
+                        displayMessage,
+                        fontSize = 24.sp
+                    )
+                }
+            }
+            Row(
+                modifier = modifier.fillMaxWidth().padding(all = 16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
                 Button(
                     onClick = {
+                        val runResult = runProbabilities(probabilities[0])
+
+                        displayMessage = if (runResult) "Yes!" else "No"
+
                         clickCount += 1
                         clickMessage = "Click Count: $clickCount"
                     }
@@ -74,6 +115,10 @@ class MainActivity : ComponentActivity() {
 
                 Button(
                     onClick = {
+                        val runResult = runProbabilities(probabilities[1])
+
+                        displayMessage = if(runResult) "Yes!" else "No"
+
                         clickCount += 1
                         clickMessage = "Click Count: $clickCount"
                     }
@@ -86,6 +131,10 @@ class MainActivity : ComponentActivity() {
 
                 Button(
                     onClick = {
+                        val runResult = runProbabilities(probabilities[2])
+
+                        displayMessage = if(runResult) "Yes!" else "No"
+
                         clickCount += 1
                         clickMessage = "Click Count: $clickCount"
                     }
@@ -95,9 +144,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            Row(modifier = modifier.fillMaxWidth()){
+            Row(
+                modifier = modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
                 Box{
-                    Text(clickMessage)
+                    Text(
+                        clickMessage,
+                        fontSize = 18.sp
+                    )
                 }
                 }
             }
@@ -108,5 +164,11 @@ class MainActivity : ComponentActivity() {
 
         val probabilities: List<Double>
             get() = _probabilities
+
+        fun runProbability(buttonProbability: Double): Boolean {
+            val randDouble = Random.nextDouble()
+
+            return if (randDouble <= buttonProbability) true else false
+        }
     }
 }
